@@ -1,0 +1,28 @@
+# Source files
+src/
+tsconfig*.json
+
+# Development files
+.eslintrc.json
+.prettierrc.json
+.gitignore
+
+# Tests
+tests/
+*.test.ts
+*.spec.ts
+
+# Documentation
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Misc
+.DS_Store
+*.log
+
+quick-test*.js
+quick-test*.ts
+
