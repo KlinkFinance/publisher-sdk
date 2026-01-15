@@ -9,8 +9,9 @@ export interface KlinkSDKConfig {
 
   /**
    * API secret for request signing
+   * Required for Publisher APIs, optional for Advertiser APIs
    */
-  apiSecret: string;
+  apiSecret?: string;
 
   /**
    * Base URL for the Klink API
@@ -36,7 +37,7 @@ export interface KlinkSDKConfig {
  */
 export interface ResolvedKlinkSDKConfig {
   apiKey: string;
-  apiSecret: string;
+  apiSecret?: string;
   baseUrl: string;
   timeoutMs: number;
   debug: boolean;

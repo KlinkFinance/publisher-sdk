@@ -21,9 +21,11 @@ The `getOffers()` method fetches available offers for publishers with optional f
 ```typescript
 import { KlinkSDK } from "@klink/sdk";
 
-const client = new KlinkSDK({
+// Publisher requires apiSecret
+// Use factory method - performs health check before initialization
+const client = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY!,
-  apiSecret: process.env.KLINK_API_SECRET!,
+  apiSecret: process.env.KLINK_API_SECRET!, // Required for Publisher
 });
 
 // Access publisher client - backend validates user_type
@@ -170,14 +172,79 @@ const response = await publisher.getOffers({
 }
 ```
 
+#### Send Postback
+
+Send a postback from Publisher SDK with any valid JSON parameters. You can use template variables that will be replaced by the API with actual values.
+
+**Available Template Variables:**
+
+| Variable | Description |
+|----------|-------------|
+| `{{conversionId}}` | Conversion ID |
+| `{{offerId}}` | Offer ID |
+| `{{offerName}}` | Offer name |
+| `{{userId}}` | User ID |
+| `{{eventType}}` | Event type |
+| `{{payout}}` | Payout amount |
+| `{{status}}` | Conversion status |
+| `{{reversedConversionId}}` | Reversed conversion ID |
+| `{{k1}}` | Custom parameter k1 |
+| `{{k2}}` | Custom parameter k2 |
+| `{{k3}}` | Custom parameter k3 |
+
+```typescript
+// Basic usage with template variables
+const response = await publisher.sendPostback({
+  params: {
+    eventName: "purchase",
+    offerId: "{{offerId}}",
+    offerName: "{{offerName}}",
+    userId: "{{userId}}",
+    conversionId: "{{conversionId}}",
+    payout: "{{payout}}",
+    status: "{{status}}",
+    reversedConversionId: "{{reversedConversionId}}",
+    k1: "{{k1}}",
+    k2: "{{k2}}",
+    k3: "{{k3}}",
+  },
+});
+
+console.log("Success:", response.success);
+console.log("Message:", response.message);
+console.log("Data:", response.data);
+```
+
+**With Custom Parameters:**
+
+```typescript
+const response = await publisher.sendPostback({
+  params: {
+    event_name: "purchase",
+    offer_id: "{{offerId}}",
+    offer_name: "{{offerName}}",
+    user_id: "{{userId}}",
+    conversion_id: "{{conversionId}}",
+    payout: "{{payout}}",
+    status: "{{status}}",
+    custom_field_1: "{{k1}}",
+    custom_field_2: "{{k2}}",
+    // Any other custom fields or template variables
+  },
+});
+```
+
+**Note**: The `params` object accepts any valid JSON structure. Template variables (e.g., `{{conversionId}}`, `{{offerId}}`) will be replaced by the API with actual values when the postback is sent.
+
 ## Advertiser API
 
 Advertiser API methods are available through the advertiser client.
 
 ```typescript
-const client = new KlinkSDK({
+// Use factory method - performs health check before initialization
+const client = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY!,
-  apiSecret: process.env.KLINK_API_SECRET!,
+  // apiSecret: process.env.KLINK_API_SECRET!, // Optional for Advertiser
 });
 
 // Access advertiser client - backend validates user_type
@@ -268,9 +335,18 @@ KlinkNetworkError: "Network error: timeout of 8000ms exceeded"
 ### Custom Timeout
 
 ```typescript
-const client = new KlinkSDK({
+// Publisher example (apiSecret required)
+// Use factory method - performs health check before initialization
+const publisherClient = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY!,
-  apiSecret: process.env.KLINK_API_SECRET!,
+  apiSecret: process.env.KLINK_API_SECRET!, // Required for Publisher
+  timeoutMs: 15000, // 15 seconds
+});
+
+// Advertiser example (apiSecret optional)
+const advertiserClient = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY!,
+  // apiSecret: process.env.KLINK_API_SECRET!, // Optional
   timeoutMs: 15000, // 15 seconds
 });
 ```
@@ -278,9 +354,17 @@ const client = new KlinkSDK({
 ### Debug Mode
 
 ```typescript
-const client = new KlinkSDK({
+// Publisher example
+// Use factory method - performs health check before initialization
+const publisherClient = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY!,
-  apiSecret: process.env.KLINK_API_SECRET!,
+  apiSecret: process.env.KLINK_API_SECRET!, // Required
+  debug: true, // Enable detailed logging
+});
+
+// Advertiser example
+const advertiserClient = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY!,
   debug: true, // Enable detailed logging
 });
 ```
@@ -288,10 +372,18 @@ const client = new KlinkSDK({
 ### Custom Base URL
 
 ```typescript
-const client = new KlinkSDK({
+// Publisher example
+// Use factory method - performs health check before initialization
+const publisherClient = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY!,
-  apiSecret: process.env.KLINK_API_SECRET!,
-  baseUrl: "https://staging-api.klink.finance/api",
+  apiSecret: process.env.KLINK_API_SECRET!, // Required
+  baseUrl: "https://klink-quest.klink.finance",
+});
+
+// Advertiser example
+const advertiserClient = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY!,
+  baseUrl: "https://klink-quest.klink.finance",
 });
 ```
 

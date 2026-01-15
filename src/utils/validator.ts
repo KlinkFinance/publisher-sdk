@@ -13,8 +13,11 @@ export function validateConfig(config: KlinkSDKConfig): void {
     throw new KlinkConfigError("'apiKey' is required and must be a non-empty string");
   }
 
-  if (!config.apiSecret || typeof config.apiSecret !== "string" || config.apiSecret.trim() === "") {
-    throw new KlinkConfigError("'apiSecret' is required and must be a non-empty string");
+  // apiSecret is optional - validate format if provided
+  if (config.apiSecret !== undefined) {
+    if (typeof config.apiSecret !== "string" || config.apiSecret.trim() === "") {
+      throw new KlinkConfigError("'apiSecret' must be a non-empty string when provided");
+    }
   }
 
   if (config.baseUrl && typeof config.baseUrl !== "string") {

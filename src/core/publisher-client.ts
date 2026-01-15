@@ -12,6 +12,8 @@ import {
   GetCountriesResponse,
   GetCategoriesResponse,
   HealthCheckResponse,
+  SendPublisherPostbackParams,
+  SendPublisherPostbackResponse,
 } from "../types/publisher";
 
 /**
@@ -438,6 +440,51 @@ export class PublisherClient {
       return response;
     } catch (error) {
       this.logger.error("Health check failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send postback from Publisher SDK
+   * 
+   * @param params - Postback parameters (any valid JSON object)
+   * @returns Promise with postback response
+   * 
+   * @example
+   * ```typescript
+   * const response = await publisher.sendPostback({
+   *   params: {
+   *     event_name: "conversion",
+   *     offer_id: "offer_123",
+   *     user_id: "user_456",
+   *     amount: 100,
+   *     currency: "USD"
+   *   }
+   * });
+   * ```
+   */
+  async sendPostback(
+    params?: SendPublisherPostbackParams
+  ): Promise<SendPublisherPostbackResponse> {
+    this.logger.debug("Sending postback with params:", params);
+
+    try {
+      // Build request body
+      const body = {
+        params: params?.params || {},
+      };
+
+      // Make POST request to send-postback endpoint
+      const response = await this.httpClient.post<SendPublisherPostbackResponse>(
+        "api/v1/publisher/send-postback",
+        body
+      );
+
+      this.logger.debug("Postback sent successfully:", response);
+
+      return response;
+    } catch (error) {
+      this.logger.error("Error sending postback:", error);
       throw error;
     }
   }

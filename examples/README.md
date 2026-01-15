@@ -69,19 +69,22 @@ Example conversion:
 ```typescript
 // TypeScript
 import { KlinkSDK } from "@klink/sdk";
-const client: KlinkSDK = new KlinkSDK({ ... });
+// Use factory method - performs health check before initialization
+const client: KlinkSDK = await KlinkSDK.create({ ... });
 ```
 
 ```javascript
 // JavaScript (ESM)
 import { KlinkSDK } from "@klink/sdk";
-const client = new KlinkSDK({ ... });
+// Use factory method - performs health check before initialization
+const client = await KlinkSDK.create({ ... });
 ```
 
 ```javascript
 // JavaScript (CommonJS)
 const { KlinkSDK } = require("@klink/sdk");
-const client = new KlinkSDK({ ... });
+// Use factory method - performs health check before initialization
+const client = await KlinkSDK.create({ ... });
 ```
 
 ## Need Help?

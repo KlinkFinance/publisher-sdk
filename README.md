@@ -41,8 +41,9 @@ pnpm add @klink/sdk
 ```typescript
 import { KlinkSDK } from "@klink/sdk";
 
-// Initialize SDK - both publisher and advertiser clients are available
-const client = new KlinkSDK({
+// Initialize SDK using factory method - performs health check before initialization
+// SDK will only be created if health check returns status 200
+const client = await KlinkSDK.create({
   apiKey: "your-api-key",
   apiSecret: "your-api-secret",
 });
@@ -56,7 +57,7 @@ const response = await publisher.getOffers({
   limit: 50,
   category: ["gaming", "finance"],
   country: "US",
-  device_name: "mobile",
+  device_name: "android",
 });
 
 console.log(`Fetched ${response.data.length} offers`);
@@ -90,9 +91,10 @@ interface KlinkSDKConfig {
 
   /**
    * API secret for request signing
-   * @required
+   * Required for Publisher APIs, optional for Advertiser APIs
+   * @optional
    */
-  apiSecret: string;
+  apiSecret?: string;
 
   /**
    * Base URL for the Klink API
@@ -117,34 +119,80 @@ interface KlinkSDKConfig {
 }
 ```
 
-**Note**: Both `publisher` and `advertiser` clients are available after initialization. The backend middleware validates `user_type` based on your API credentials, so using the wrong client will result in authentication errors.
+**Important Notes**:
+- **Use `KlinkSDK.create()` factory method** - This performs a health check before initialization. SDK will only be created if health check returns status 200.
+- Both `publisher` and `advertiser` clients are available after initialization
+- **`apiSecret` is required for Publisher APIs** - accessing `client.publisher` without `apiSecret` will throw an error
+- **`apiSecret` is optional for Advertiser APIs** - `client.advertiser` works with just `apiKey`
+- The backend middleware validates `user_type` based on your API credentials, so using the wrong client will result in authentication errors
+- If health check fails (non-200 status or network error), `KlinkSDK.create()` will throw an error and the SDK instance will not be created
 
 ## Usage Examples
 
 ### Basic Initialization
 
+**Important**: Use `KlinkSDK.create()` factory method for initialization. This performs a health check before creating the SDK instance. The SDK will only be initialized if the health check returns status 200.
+
+#### For Publisher (apiSecret required)
+
 ```typescript
 import { KlinkSDK } from "@klink/sdk";
 
-const client = new KlinkSDK({
+// Use factory method - performs health check before initialization
+const client = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY,
-  apiSecret: process.env.KLINK_API_SECRET,
+  apiSecret: process.env.KLINK_API_SECRET, // Required for Publisher
 });
 
-// Both clients are available - backend validates user_type
+// Publisher client requires apiSecret
 const publisher = client.publisher;
-const advertiser = client.advertiser;
+await publisher.getOffers();
 ```
+
+#### For Advertiser (apiSecret optional)
+
+```typescript
+import { KlinkSDK } from "@klink/sdk";
+
+// Use factory method - performs health check before initialization
+const client = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY,
+  // apiSecret is optional for Advertiser
+});
+
+// Advertiser client works without apiSecret
+const advertiser = client.advertiser;
+await advertiser.sendPostback({...});
+```
+
+#### For Both (if you have credentials for both)
+
+```typescript
+import { KlinkSDK } from "@klink/sdk";
+
+// Use factory method - performs health check before initialization
+const client = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY,
+  apiSecret: process.env.KLINK_API_SECRET, // Required if using Publisher
+});
+
+// Both clients available - backend validates user_type
+const publisher = client.publisher; // Requires apiSecret
+const advertiser = client.advertiser; // Works with or without apiSecret
+```
+
+**Note**: If the health check fails (non-200 status or network error), `KlinkSDK.create()` will throw an error and the SDK instance will not be created.
 
 ### With Custom Configuration
 
 ```typescript
 import { KlinkSDK } from "@klink/sdk";
 
-const client = new KlinkSDK({
+// Use factory method with custom configuration
+const client = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY,
   apiSecret: process.env.KLINK_API_SECRET,
-  baseUrl: "https://staging-api.klinkfinance.com", // Use staging environment
+  baseUrl: "https://klink-quest.klink.finance", // Use staging environment
   timeoutMs: 10000, // 10 second timeout
   debug: true, // Enable debug logging
 });
@@ -157,15 +205,23 @@ It's recommended to use environment variables for sensitive data:
 ```bash
 # .env file
 KLINK_API_KEY=your-api-key
-KLINK_API_SECRET=your-api-secret
+KLINK_API_SECRET=your-api-secret  # Optional for Advertiser, required for Publisher
 ```
 
 ```typescript
 import { KlinkSDK } from "@klink/sdk";
 
-const client = new KlinkSDK({
+// Publisher (requires apiSecret)
+// Use factory method - performs health check before initialization
+const publisherClient = await KlinkSDK.create({
   apiKey: process.env.KLINK_API_KEY!,
-  apiSecret: process.env.KLINK_API_SECRET!,
+  apiSecret: process.env.KLINK_API_SECRET!, // Required
+});
+
+// Advertiser (apiSecret optional)
+const advertiserClient = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY!,
+  // apiSecret: process.env.KLINK_API_SECRET, // Optional
 });
 ```
 
@@ -183,7 +239,8 @@ import {
 } from "@klink/sdk";
 
 try {
-  const client = new KlinkSDK({
+  // Use factory method - performs health check before initialization
+  const client = await KlinkSDK.create({
     apiKey: "invalid-key",
     apiSecret: "invalid-secret",
   });
@@ -209,6 +266,12 @@ try {
 ### Publisher Client
 
 ```typescript
+// Initialize SDK with health check
+const client = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY,
+  apiSecret: process.env.KLINK_API_SECRET, // Required for Publisher
+});
+
 const publisher = client.publisher;
 
 // 1. Fetch offers with filters
@@ -286,6 +349,22 @@ console.log(categoriesResponse.success);   // Request status
 // 7. Health check
 const health = await publisher.healthCheck();
 console.log(health.status);           // API health status
+
+// 8. Send postback
+const postbackResponse = await publisher.sendPostback({
+  params: {
+    offerName: "conversion",
+    offerId: "{{offerId}}",
+    userId: "{{userId}}",
+    conversionId: "{{conversionId}}",
+    payout: "{{payout}}",
+    status: "{{status}}",
+    reversedConversionId: "{{reversedConversionId}}"
+  },
+});
+console.log(postbackResponse.success);   // Request status
+console.log(postbackResponse.message);   // Optional message
+console.log(postbackResponse.data);      // Response data
 
 // Other methods (coming soon):
 // - trackClick()
@@ -393,11 +472,80 @@ All parameters are optional:
 
 No parameters required. Returns the API health status.
 
+#### sendPostback() Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `params` | `Record<string, any>` | No | Postback parameters - any valid JSON object |
+
+**Request Body Format:**
+```typescript
+{
+  params?: {
+    // Any valid JSON object
+    // Can include template variables that will be replaced by the API:
+    // {{conversionId}}, {{offerId}}, {{offerName}}, {{userId}}, 
+    // {{eventType}}, {{payout}}, {{status}}, {{reversedConversionId}},
+    // {{k1}}, {{k2}}, {{k3}}
+    [key: string]: any; // Any custom fields or template variables
+  }
+}
+```
+
+**Available Template Variables:**
+
+The following template variables can be used in the `params` object and will be replaced by the API with actual values:
+
+| Variable | Description |
+|----------|-------------|
+| `{{conversionId}}` | Conversion ID |
+| `{{offerId}}` | Offer ID |
+| `{{offerName}}` | Offer name |
+| `{{userId}}` | User ID |
+| `{{eventType}}` | Event type |
+| `{{payout}}` | Payout amount |
+| `{{status}}` | Conversion status |
+| `{{reversedConversionId}}` | Reversed conversion ID |
+| `{{k1}}` | Custom parameter k1 |
+| `{{k2}}` | Custom parameter k2 |
+| `{{k3}}` | Custom parameter k3 |
+
+**Response Format:**
+```typescript
+{
+  success: boolean;
+  message?: string;
+  data?: unknown;
+  [key: string]: unknown;
+}
+```
+
+**Example:**
+```typescript
+const response = await publisher.sendPostback({
+  params: {
+    event_name: "conversion",
+    offer_id: "{{offerId}}",
+    user_id: "{{userId}}",
+    conversion_id: "{{conversionId}}",
+    payout: "{{payout}}",
+    status: "{{status}}",
+    custom_field: "{{k1}}",
+  },
+});
+```
+
 See [USAGE.md](./USAGE.md) for detailed examples and use cases.
 
 ### Advertiser Client
 
 ```typescript
+// Initialize SDK with health check
+const client = await KlinkSDK.create({
+  apiKey: process.env.KLINK_API_KEY,
+  // apiSecret: process.env.KLINK_API_SECRET, // Optional for Advertiser
+});
+
 const advertiser = client.advertiser;
 
 // 1. Health check
@@ -439,7 +587,7 @@ All parameters are required:
 | `tx_id` | `string` | Yes | Transaction ID for the postback |
 | `isChargeback` | `boolean` | Yes | Whether this is a chargeback event |
 | `chargebackReason` | `string` | Yes | Reason for chargeback (empty string if not applicable) |
-| `isTest` | `boolean` | Yes | Whether this is a test postback |
+| `isTest` | `boolean` | Yes | To test postback param values. This won't be considered as an actual postback. We won't store details if this flag is true |
 
 **Note**: The `advertiserId` in the API route is automatically set to your API key from the SDK configuration.
 
@@ -492,12 +640,22 @@ The SDK is written in TypeScript and includes full type definitions. No need to 
 ```typescript
 import { KlinkSDK, KlinkSDKConfig } from "@klink/sdk";
 
-const config: KlinkSDKConfig = {
+// Publisher config (apiSecret required)
+const publisherConfig: KlinkSDKConfig = {
   apiKey: "your-key",
-  apiSecret: "your-secret",
+  apiSecret: "your-secret", // Required for Publisher
 };
 
-const client = new KlinkSDK(config);
+// Use factory method - performs health check before initialization
+const publisherClient = await KlinkSDK.create(publisherConfig);
+
+// Advertiser config (apiSecret optional)
+const advertiserConfig: KlinkSDKConfig = {
+  apiKey: "your-key",
+  // apiSecret: "your-secret", // Optional for Advertiser
+};
+
+const advertiserClient = await KlinkSDK.create(advertiserConfig);
 ```
 
 ## License

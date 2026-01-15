@@ -38,6 +38,7 @@ export class HttpClient {
         this.logger.debug(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
 
         // Add authentication headers (Bearer token)
+        // apiSecret is optional - advertiser can use apiKey only
         const authHeaders = createAuthHeaders(this.config.apiKey, this.config.apiSecret);
 
         // Set auth headers (config.headers is always defined in axios interceptors)

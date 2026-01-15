@@ -368,6 +368,26 @@ export interface HealthCheckResponse {
 }
 
 /**
+ * Parameters for sending a postback from Publisher SDK
+ */
+export interface SendPublisherPostbackParams {
+  /**
+   * Postback parameters - any valid JSON object
+   */
+  params?: Record<string, any>;
+}
+
+/**
+ * Response from send postback API
+ */
+export interface SendPublisherPostbackResponse {
+  success: boolean;
+  message?: string;
+  data?: unknown;
+  [key: string]: unknown;
+}
+
+/**
  * Click tracking event parameters
  */
 export interface PublisherClickEvent {
