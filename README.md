@@ -351,7 +351,7 @@ const health = await publisher.healthCheck();
 console.log(health.status);           // API health status
 
 // 8. Send postback
-const postbackResponse = await publisher.sendPostback({
+const postbackResponse = await publisher.sendTestPostback({
   params: {
     offerName: "conversion",
     offerId: "{{offerId}}",
@@ -522,7 +522,7 @@ The following template variables can be used in the `params` object and will be 
 
 **Example:**
 ```typescript
-const response = await publisher.sendPostback({
+const response = await publisher.sendTestPostback({
   params: {
     event_name: "conversion",
     offer_id: "{{offerId}}",

@@ -194,7 +194,7 @@ Send a postback from Publisher SDK with any valid JSON parameters. You can use t
 
 ```typescript
 // Basic usage with template variables
-const response = await publisher.sendPostback({
+const response = await publisher.sendTestPostback({
   params: {
     eventName: "purchase",
     offerId: "{{offerId}}",
@@ -218,7 +218,7 @@ console.log("Data:", response.data);
 **With Custom Parameters:**
 
 ```typescript
-const response = await publisher.sendPostback({
+const response = await publisher.sendTestPostback({
   params: {
     event_name: "purchase",
     offer_id: "{{offerId}}",

@@ -452,7 +452,7 @@ export class PublisherClient {
    * 
    * @example
    * ```typescript
-   * const response = await publisher.sendPostback({
+   * const response = await publisher.sendTestPostback({
    *   params: {
    *     event_name: "conversion",
    *     offer_id: "offer_123",
@@ -463,7 +463,7 @@ export class PublisherClient {
    * });
    * ```
    */
-  async sendPostback(
+  async sendTestPostback(
     params?: SendPublisherPostbackParams
   ): Promise<SendPublisherPostbackResponse> {
     this.logger.debug("Sending postback with params:", params);

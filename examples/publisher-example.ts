@@ -387,7 +387,7 @@ async function checkHealth() {
  */
 async function sendPostback() {
   try {
-    const response = await publisher.sendPostback({
+    const response = await publisher.sendTestPostback({
       params: {
         eventType: "{{eventType}}",
         offerId: "{{offerId}}",
@@ -411,7 +411,7 @@ async function sendPostback() {
 
 async function sendPostbackWithCustomParams() {
   try {
-    const response = await publisher.sendPostback({
+    const response = await publisher.sendTestPostback({
       params: {
         eventName: "purchase",
         offerId: "{{offerId}}",
@@ -434,7 +434,7 @@ async function sendPostbackWithCustomParams() {
 
 async function sendPostbackWithMixedParams() {
   try {
-    const response = await publisher.sendPostback({
+    const response = await publisher.sendTestPostback({
       params: {
         // Template variables
         offer_id: "{{offerId}}",
@@ -455,7 +455,7 @@ async function sendPostbackWithMixedParams() {
 
 async function sendPostbackWithEmptyParams() {
   try {
-    const response = await publisher.sendPostback({
+    const response = await publisher.sendTestPostback({
       params: {},
     });
     console.log("Postback sent (empty params):", response.success);
