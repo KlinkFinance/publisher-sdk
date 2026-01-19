@@ -31,9 +31,9 @@ export interface SendPostbackParams {
   tx_id: string;
 
   /**
-  * isChargeback for the postback
-  * @required
-  */
+   * isChargeback for the postback
+   * @required
+   */
   isChargeback: boolean;
 
   /**
@@ -43,10 +43,10 @@ export interface SendPostbackParams {
   chargebackReason: string;
 
   /**
-  * isTest for the postback
-  * @required
-  */
-  isTest: boolean
+   * isTest for the postback
+   * @required
+   */
+  isTest: boolean;
 }
 
 /**

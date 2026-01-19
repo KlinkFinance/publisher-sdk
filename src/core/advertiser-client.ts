@@ -1,10 +1,7 @@
 import { HttpClient } from "./http-client";
 import { Logger } from "../utils/logger";
 import { HealthCheckResponse } from "../types";
-import {
-  SendPostbackParams,
-  SendPostbackResponse,
-} from "../types/advertiser";
+import { SendPostbackParams, SendPostbackResponse } from "../types/advertiser";
 
 /**
  * Advertiser client for sending postbacks and conversion events
@@ -23,9 +20,9 @@ export class AdvertiserClient {
 
   /**
    * Health check endpoint
-   * 
+   *
    * @returns Promise with health status
-   * 
+   *
    * @example
    * ```typescript
    * const health = await advertiser.healthCheck();
@@ -47,10 +44,10 @@ export class AdvertiserClient {
 
   /**
    * Send a postback for the advertiser
-   * 
+   *
    * @param params - Parameters for the postback
    * @returns Promise with postback response
-   * 
+   *
    * @example
    * ```typescript
    * const response = await advertiser.sendPostback({
@@ -64,9 +61,7 @@ export class AdvertiserClient {
    * });
    * ```
    */
-  async sendPostback(
-    params: SendPostbackParams
-  ): Promise<SendPostbackResponse> {
+  async sendPostback(params: SendPostbackParams): Promise<SendPostbackResponse> {
     this.logger.debug("Sending postback with params:", params);
 
     // Validate required parameters
@@ -81,9 +76,9 @@ export class AdvertiserClient {
         offer_id: params.offer_id,
         sub1: params.sub1,
         tx_id: params.tx_id,
-        isChargeback: params.isChargeback ? 'true' : 'false',
-        chargebackReason: params.chargebackReason ? params.chargebackReason : '',
-        isTest: params.isTest ? 'true' : 'false',
+        isChargeback: params.isChargeback ? "true" : "false",
+        chargebackReason: params.chargebackReason ? params.chargebackReason : "",
+        isTest: params.isTest ? "true" : "false",
       };
 
       // Make GET request to postback endpoint
@@ -102,4 +97,3 @@ export class AdvertiserClient {
     }
   }
 }
-

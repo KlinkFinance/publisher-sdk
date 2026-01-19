@@ -402,4 +402,3 @@ export interface PublisherTrackEvent {
   // To be defined when implementing event tracking
   [key: string]: unknown;
 }
-

@@ -25,14 +25,10 @@ export function createBearerToken(apiKey: string, apiSecret?: string): string {
  * @param apiSecret - API secret (optional)
  * @returns Authentication headers
  */
-export function createAuthHeaders(
-  apiKey: string,
-  apiSecret?: string
-): Record<string, string> {
+export function createAuthHeaders(apiKey: string, apiSecret?: string): Record<string, string> {
   const token = createBearerToken(apiKey, apiSecret);
-  
+
   return {
     Authorization: `Bearer ${token}`,
   };
 }
-

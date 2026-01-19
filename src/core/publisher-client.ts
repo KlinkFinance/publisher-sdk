@@ -31,10 +31,10 @@ export class PublisherClient {
 
   /**
    * Fetch offers for publishers with optional filters
-   * 
+   *
    * @param params - Query parameters for filtering offers
    * @returns Promise with offers data
-   * 
+   *
    * @example
    * ```typescript
    * const offers = await publisher.getOffers({
@@ -52,7 +52,7 @@ export class PublisherClient {
     try {
       // Build query parameters
       const queryParams: Record<string, string> = {};
-      queryParams.fromSDK = '1';
+      queryParams.fromSDK = "1";
 
       if (params) {
         // Handle page, limit, reload
@@ -103,10 +103,9 @@ export class PublisherClient {
       }
 
       // Make GET request to offers endpoint
-      const response = await this.httpClient.get<GetOffersResponse>(
-        "api/v1/publisher/offers",
-        { params: queryParams }
-      );
+      const response = await this.httpClient.get<GetOffersResponse>("api/v1/publisher/offers", {
+        params: queryParams,
+      });
 
       this.logger.debug(`Fetched ${response.data?.length || 0} offers`);
 
@@ -119,10 +118,10 @@ export class PublisherClient {
 
   /**
    * Fetch conversions for publishers with optional filters
-   * 
+   *
    * @param params - Query parameters for filtering conversions
    * @returns Promise with conversions data
-   * 
+   *
    * @example
    * ```typescript
    * const conversions = await publisher.getConversions({
@@ -141,7 +140,7 @@ export class PublisherClient {
     try {
       // Build query parameters
       const queryParams: Record<string, string> = {};
-      queryParams.fromSDK = '1';
+      queryParams.fromSDK = "1";
 
       if (params) {
         // Handle page and limit
@@ -201,10 +200,10 @@ export class PublisherClient {
 
   /**
    * Fetch users for the publisher with optional filters
-   * 
+   *
    * @param params - Query parameters for filtering users
    * @returns Promise with users data
-   * 
+   *
    * @example
    * ```typescript
    * const users = await publisher.getUsers({
@@ -222,7 +221,7 @@ export class PublisherClient {
       // Build query parameters
       const queryParams: Record<string, string> = {};
 
-      queryParams.fromSDK = '1';
+      queryParams.fromSDK = "1";
       if (params) {
         // Handle page and limit
         if (params.page !== undefined) {
@@ -244,10 +243,9 @@ export class PublisherClient {
       }
 
       // Make GET request to users endpoint
-      const response = await this.httpClient.get<GetUsersResponse>(
-        "api/v1/publisher/users",
-        { params: queryParams }
-      );
+      const response = await this.httpClient.get<GetUsersResponse>("api/v1/publisher/users", {
+        params: queryParams,
+      });
 
       this.logger.debug(`Fetched ${response.data?.length || 0} users`);
 
@@ -260,10 +258,10 @@ export class PublisherClient {
 
   /**
    * Fetch postback logs for the publisher with optional filters
-   * 
+   *
    * @param params - Query parameters for filtering postback logs
    * @returns Promise with postback logs data
-   * 
+   *
    * @example
    * ```typescript
    * const postbacks = await publisher.getPostbacks({
@@ -282,7 +280,7 @@ export class PublisherClient {
     try {
       // Build query parameters
       const queryParams: Record<string, string> = {};
-      queryParams.fromSDK = '1';
+      queryParams.fromSDK = "1";
 
       if (params) {
         // Handle page and limit
@@ -326,10 +324,9 @@ export class PublisherClient {
       }
 
       // Make GET request to postbacks/logs endpoint
-      const response = await this.httpClient.get<GetPostbacksResponse>(
-        "api/v1/postback/logs",
-        { params: queryParams }
-      );
+      const response = await this.httpClient.get<GetPostbacksResponse>("api/v1/postback/logs", {
+        params: queryParams,
+      });
 
       this.logger.debug(`Fetched ${response.data?.length || 0} postbacks`);
 
@@ -342,10 +339,10 @@ export class PublisherClient {
 
   /**
    * Fetch supported countries
-   * 
+   *
    * @param reload - Force reload (bypass cache)
    * @returns Promise with countries data
-   * 
+   *
    * @example
    * ```typescript
    * const countries = await publisher.getCountries();
@@ -382,10 +379,10 @@ export class PublisherClient {
 
   /**
    * Fetch supported categories
-   * 
+   *
    * @param reload - Force reload (bypass cache)
    * @returns Promise with categories data
-   * 
+   *
    * @example
    * ```typescript
    * const categories = await publisher.getCategories();
@@ -422,9 +419,9 @@ export class PublisherClient {
 
   /**
    * Health check endpoint
-   * 
+   *
    * @returns Promise with health status
-   * 
+   *
    * @example
    * ```typescript
    * const health = await publisher.healthCheck();
@@ -446,10 +443,10 @@ export class PublisherClient {
 
   /**
    * Send postback from Publisher SDK
-   * 
+   *
    * @param params - Postback parameters (any valid JSON object)
    * @returns Promise with postback response
-   * 
+   *
    * @example
    * ```typescript
    * const response = await publisher.sendTestPostback({
@@ -488,6 +485,4 @@ export class PublisherClient {
       throw error;
     }
   }
-
 }
-

@@ -42,4 +42,3 @@ export interface ResolvedKlinkSDKConfig {
   timeoutMs: number;
   debug: boolean;
 }
-

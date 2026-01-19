@@ -44,11 +44,7 @@ export class KlinkSDK {
 
     // Initialize both clients - backend middleware will validate user_type
     this._publisherClient = new PublisherClient(this.httpClient, this.logger);
-    this._advertiserClient = new AdvertiserClient(
-      this.httpClient,
-      this.logger,
-      this.config.apiKey
-    );
+    this._advertiserClient = new AdvertiserClient(this.httpClient, this.logger, this.config.apiKey);
 
     this.logger.info("Klink SDK initialized successfully");
   }
@@ -56,15 +52,15 @@ export class KlinkSDK {
   /**
    * Factory method to create SDK instance with async health check
    * This is the recommended way to initialize the SDK with health check validation
-   * 
+   *
    * The health check ensures the API is accessible (status 200) before initializing the SDK.
    * If health check fails, the SDK instance will not be created and an error will be thrown.
-   * 
+   *
    * @param config - SDK configuration
    * @returns Promise that resolves to KlinkSDK instance
    * @throws {KlinkAPIError} If health check fails (non-200 status)
    * @throws {KlinkNetworkError} If health check times out or network error occurs
-   * 
+   *
    * @example
    * ```typescript
    * // Recommended: Use factory method with health check
@@ -72,7 +68,7 @@ export class KlinkSDK {
    *   apiKey: "your-key",
    *   apiSecret: "your-secret",
    * });
-   * 
+   *
    * // If health check fails, this will throw an error and client won't be created
    * ```
    */
@@ -132,11 +128,7 @@ export class KlinkSDK {
       if (response.status !== 200) {
         const errorMessage = `Health check failed with status ${response.status}. API is not available.`;
         logger.error(errorMessage);
-        throw new KlinkAPIError(
-          errorMessage,
-          response.status,
-          response.data
-        );
+        throw new KlinkAPIError(errorMessage, response.status, response.data);
       }
 
       logger.info("Health check passed", {
@@ -228,4 +220,3 @@ export class KlinkSDK {
     return { ...this.config };
   }
 }
-

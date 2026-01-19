@@ -68,4 +68,3 @@ export class KlinkValidationError extends KlinkSDKError {
     Object.setPrototypeOf(this, KlinkValidationError.prototype);
   }
 }
-

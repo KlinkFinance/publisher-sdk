@@ -34,4 +34,3 @@ export function validateConfig(config: KlinkSDKConfig): void {
     throw new KlinkConfigError("'debug' must be a boolean");
   }
 }
-
