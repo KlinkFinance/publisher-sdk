@@ -1,4 +1,4 @@
-# @klink/sdk
+# @klinkfinance/sdk
 
 Official Node.js SDK for the Klink platform. This SDK provides a simple and consistent interface for both Publishers and Advertisers to integrate with Klink's API.
 
@@ -15,19 +15,19 @@ Official Node.js SDK for the Klink platform. This SDK provides a simple and cons
 ## Installation
 
 ```bash
-npm install @klink/sdk
+npm install @klinkfinance/sdk
 ```
 
 or with yarn:
 
 ```bash
-yarn add @klink/sdk
+yarn add @klinkfinance/sdk
 ```
 
 or with pnpm:
 
 ```bash
-pnpm add @klink/sdk
+pnpm add @klinkfinance/sdk
 ```
 
 ## Requirements
@@ -39,7 +39,7 @@ pnpm add @klink/sdk
 ### Basic Usage
 
 ```typescript
-import { KlinkSDK } from "@klink/sdk";
+import { KlinkSDK } from "@klinkfinance/sdk";
 
 // Initialize SDK using factory method - performs health check before initialization
 // SDK will only be created if health check returns status 200
@@ -136,7 +136,7 @@ interface KlinkSDKConfig {
 #### For Publisher (apiSecret required)
 
 ```typescript
-import { KlinkSDK } from "@klink/sdk";
+import { KlinkSDK } from "@klinkfinance/sdk";
 
 // Use factory method - performs health check before initialization
 const client = await KlinkSDK.create({
@@ -152,7 +152,7 @@ await publisher.getOffers();
 #### For Advertiser (apiSecret optional)
 
 ```typescript
-import { KlinkSDK } from "@klink/sdk";
+import { KlinkSDK } from "@klinkfinance/sdk";
 
 // Use factory method - performs health check before initialization
 const client = await KlinkSDK.create({
@@ -168,7 +168,7 @@ await advertiser.sendPostback({...});
 #### For Both (if you have credentials for both)
 
 ```typescript
-import { KlinkSDK } from "@klink/sdk";
+import { KlinkSDK } from "@klinkfinance/sdk";
 
 // Use factory method - performs health check before initialization
 const client = await KlinkSDK.create({
@@ -186,7 +186,7 @@ const advertiser = client.advertiser; // Works with or without apiSecret
 ### With Custom Configuration
 
 ```typescript
-import { KlinkSDK } from "@klink/sdk";
+import { KlinkSDK } from "@klinkfinance/sdk";
 
 // Use factory method with custom configuration
 const client = await KlinkSDK.create({
@@ -209,7 +209,7 @@ KLINK_API_SECRET=your-api-secret  # Optional for Advertiser, required for Publis
 ```
 
 ```typescript
-import { KlinkSDK } from "@klink/sdk";
+import { KlinkSDK } from "@klinkfinance/sdk";
 
 // Publisher (requires apiSecret)
 // Use factory method - performs health check before initialization
@@ -236,7 +236,7 @@ import {
   KlinkAuthError, 
   KlinkAPIError, 
   KlinkNetworkError 
-} from "@klink/sdk";
+} from "@klinkfinance/sdk";
 
 try {
   // Use factory method - performs health check before initialization
@@ -638,7 +638,7 @@ src/
 The SDK is written in TypeScript and includes full type definitions. No need to install additional `@types` packages.
 
 ```typescript
-import { KlinkSDK, KlinkSDKConfig } from "@klink/sdk";
+import { KlinkSDK, KlinkSDKConfig } from "@klinkfinance/sdk";
 
 // Publisher config (apiSecret required)
 const publisherConfig: KlinkSDKConfig = {
