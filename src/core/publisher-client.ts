@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client";
 import { Logger } from "../utils/logger";
+import * as jwt from "jsonwebtoken";
 import {
   GetOffersParams,
   GetOffersResponse,
@@ -14,6 +15,8 @@ import {
   HealthCheckResponse,
   SendPublisherPostbackParams,
   SendPublisherPostbackResponse,
+  CreateQuestRedirectTokenParams,
+  CreateQuestRedirectTokenResponse,
 } from "../types/publisher";
 
 /**
@@ -460,7 +463,7 @@ export class PublisherClient {
    * });
    * ```
    */
-  async sendTestPostback(
+  async sendPostback(
     params?: SendPublisherPostbackParams
   ): Promise<SendPublisherPostbackResponse> {
     this.logger.debug("Sending postback with params:", params);
@@ -482,6 +485,86 @@ export class PublisherClient {
       return response;
     } catch (error) {
       this.logger.error("Error sending postback:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create Quest Redirect Token (JWT)
+   * 
+   * Generates a JWT token with the provided payload for quest redirects.
+   * This is a local operation - no API call is made.
+   * 
+   * @param params - Token parameters
+   * @param secret - JWT secret for signing the token
+   * @returns Token data with token string and expiration timestamp
+   * 
+   * @example
+   * ```typescript
+   * const tokenData = publisher.createQuestRedirectToken(
+   *   {
+   *     offerId: "4096",
+   *     sub: "pub-user1",
+   *     pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+   *     expirationMinutes: 10,
+   *     custom_params: {
+   *       k1: "custom1",
+   *       k2: "custom2",
+   *       k3: "custom3",
+   *     }
+   *   },
+   *   "your-jwt-secret"
+   * );
+   * console.log(tokenData.token);
+   * console.log(tokenData.expiresAt);
+   * ```
+   */
+  createQuestRedirectToken(
+    params: CreateQuestRedirectTokenParams,
+    secret: string
+  ): CreateQuestRedirectTokenResponse {
+    this.logger.debug("Creating quest redirect token with params:", params);
+
+    // Validate required parameters
+    if (!params.offerId || !params.sub || !params.pub) {
+      throw new Error("offerId, sub, and pub are required");
+    }
+
+    if (!secret || secret.trim() === "") {
+      throw new Error("JWT secret is required");
+    }
+
+    try {
+      // Calculate expiration time
+      const expirationMinutes = params.expirationMinutes ?? 10;
+      const expiresAt = Math.floor(Date.now() / 1000) + expirationMinutes * 60;
+
+      // Build JWT payload
+      const payload: Record<string, any> = {
+        offerId: params.offerId,
+        exp: expiresAt,
+        sub: params.sub,
+        pub: params.pub,
+      };
+
+      // Add custom params if provided
+      if (params.custom_params) {
+        payload.custom_params = params.custom_params;
+      }
+
+      this.logger.debug("JWT payload:", payload);
+
+      // Sign the token
+      const token = jwt.sign(payload, secret);
+
+      this.logger.debug("JWT token created successfully");
+
+      return {
+        token,
+        expiresAt,
+      };
+    } catch (error) {
+      this.logger.error("Error creating quest redirect token:", error);
       throw error;
     }
   }

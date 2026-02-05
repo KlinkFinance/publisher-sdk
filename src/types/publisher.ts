@@ -388,6 +388,55 @@ export interface SendPublisherPostbackResponse {
 }
 
 /**
+ * Parameters for creating quest redirect token
+ */
+export interface CreateQuestRedirectTokenParams {
+  /**
+   * Offer ID
+   * @required
+   */
+  offerId: string;
+
+  /**
+   * Sub parameter (user identifier)
+   * @required
+   */
+  sub: string;
+
+  /**
+   * Publisher ID
+   * @required
+   */
+  pub: string;
+
+  /**
+   * Token expiration in minutes
+   * @default 10
+   */
+  expirationMinutes?: number;
+
+  /**
+   * Custom parameters (optional)
+   */
+  custom_params?: {
+    k1?: string;
+    k2?: string;
+    k3?: string;
+    k4?: string;
+    k5?: string;
+    [key: string]: string | undefined;
+  };
+}
+
+/**
+ * Response from create quest redirect token
+ */
+export interface CreateQuestRedirectTokenResponse {
+  token: string;
+  expiresAt: number;
+}
+
+/**
  * Click tracking event parameters
  */
 export interface PublisherClickEvent {

@@ -351,7 +351,7 @@ const health = await publisher.healthCheck();
 console.log(health.status);           // API health status
 
 // 8. Send postback
-const postbackResponse = await publisher.sendTestPostback({
+const postbackResponse = await publisher.sendPostback({
   params: {
     offerName: "conversion",
     offerId: "{{offerId}}",
@@ -365,6 +365,20 @@ const postbackResponse = await publisher.sendTestPostback({
 console.log(postbackResponse.success);   // Request status
 console.log(postbackResponse.message);   // Optional message
 console.log(postbackResponse.data);      // Response data
+
+// 9. Create Quest Redirect Token (local JWT generation)
+const tokenData = publisher.createQuestRedirectToken(
+  {
+    offerId: "4096",
+    sub: "pub-user1",
+    pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+    expirationMinutes: 10, // Optional, default 10 minutes
+    custom_params: { k1: "value1", k2: "value2" }, // Optional
+  },
+  "your-jwt-secret" // JWT secret for signing
+);
+console.log(tokenData.token);           // JWT token
+console.log(tokenData.expiresAt);       // Unix timestamp
 
 // Other methods (coming soon):
 // - trackClick()
@@ -522,7 +536,7 @@ The following template variables can be used in the `params` object and will be 
 
 **Example:**
 ```typescript
-const response = await publisher.sendTestPostback({
+const response = await publisher.sendPostback({
   params: {
     event_name: "conversion",
     offer_id: "{{offerId}}",
@@ -533,6 +547,50 @@ const response = await publisher.sendTestPostback({
     custom_field: "{{k1}}",
   },
 });
+```
+
+#### createQuestRedirectToken() Parameters
+
+This function creates a JWT token locally (no API call) for Quest redirect authentication.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `params.offerId` | `string` | Yes | Offer ID for the quest |
+| `params.sub` | `string` | Yes | Subject identifier (user ID) |
+| `params.pub` | `string` | Yes | Publisher ID |
+| `params.expirationMinutes` | `number` | No | Token expiration time in minutes (default: 10) |
+| `params.custom_params` | `object` | No | Custom parameters (k1-k5 and any additional keys) |
+| `secret` | `string` | Yes | JWT secret for signing the token |
+
+**Returns:**
+```typescript
+{
+  token: string;      // JWT token
+  expiresAt: number;  // Unix timestamp (seconds)
+}
+```
+
+**Example:**
+```typescript
+const tokenData = publisher.createQuestRedirectToken(
+  {
+    offerId: "4096",
+    sub: "pub-user1",
+    pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+    expirationMinutes: 15,
+    custom_params: {
+      k1: "campaign_id_123",
+      k2: "source_web",
+      k3: "medium_banner",
+      k4: "custom_param4",
+      k5: "custom_param5",
+    },
+  },
+  process.env.JWT_SECRET
+);
+
+// Use the token in redirect URL
+const redirectUrl = `https://quest.klink.finance?token=${tokenData.token}`;
 ```
 
 See [USAGE.md](./USAGE.md) for detailed examples and use cases.

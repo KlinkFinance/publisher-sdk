@@ -2,13 +2,13 @@ import { PublisherClient } from "../../src/core/publisher-client";
 import { HttpClient } from "../../src/core/http-client";
 import { Logger } from "../../src/utils/logger";
 import {
-    GetOffersResponse,
-    GetConversionsResponse,
-    GetUsersResponse,
-    GetPostbacksResponse,
-    GetCountriesResponse,
-    GetCategoriesResponse,
-    HealthCheckResponse,
+  GetOffersResponse,
+  GetConversionsResponse,
+  GetUsersResponse,
+  GetPostbacksResponse,
+  GetCountriesResponse,
+  GetCategoriesResponse,
+  HealthCheckResponse,
 } from "../../src/types/publisher";
 import { KlinkAPIError } from "../../src/types/errors";
 
@@ -572,6 +572,106 @@ describe("PublisherClient", () => {
                 KlinkAPIError
             );
             expect(mockLogger.error).toHaveBeenCalled();
+        });
+    });
+
+    describe("createQuestRedirectToken", () => {
+        const validParams = {
+            offerId: "4096",
+            sub: "pub-user1",
+            pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+        };
+        const secret = "test-jwt-secret";
+
+        it("should create JWT token with required params", () => {
+            const result = publisherClient.createQuestRedirectToken(validParams, secret);
+
+            expect(result).toHaveProperty("token");
+            expect(result).toHaveProperty("expiresAt");
+            expect(typeof result.token).toBe("string");
+            expect(typeof result.expiresAt).toBe("number");
+            expect(result.expiresAt).toBeGreaterThan(Date.now() / 1000);
+        });
+
+        it("should create JWT token with custom expiration", () => {
+            const result = publisherClient.createQuestRedirectToken(
+                { ...validParams, expirationMinutes: 30 },
+                secret
+            );
+
+            const expectedExpiration = Math.floor(Date.now() / 1000) + 30 * 60;
+            expect(result.expiresAt).toBeGreaterThanOrEqual(expectedExpiration - 2);
+            expect(result.expiresAt).toBeLessThanOrEqual(expectedExpiration + 2);
+        });
+
+        it("should create JWT token with custom params", () => {
+            const result = publisherClient.createQuestRedirectToken(
+                {
+                    ...validParams,
+                    custom_params: {
+                        k1: "custom1",
+                        k2: "custom2",
+                        k3: "custom3",
+                    },
+                },
+                secret
+            );
+
+            expect(result).toHaveProperty("token");
+            expect(typeof result.token).toBe("string");
+        });
+
+        it("should use default expiration of 10 minutes", () => {
+            const result = publisherClient.createQuestRedirectToken(validParams, secret);
+
+            const expectedExpiration = Math.floor(Date.now() / 1000) + 10 * 60;
+            expect(result.expiresAt).toBeGreaterThanOrEqual(expectedExpiration - 2);
+            expect(result.expiresAt).toBeLessThanOrEqual(expectedExpiration + 2);
+        });
+
+        it("should throw error when offerId is missing", () => {
+            expect(() => {
+                publisherClient.createQuestRedirectToken(
+                    { ...validParams, offerId: "" },
+                    secret
+                );
+            }).toThrow("offerId, sub, and pub are required");
+        });
+
+        it("should throw error when sub is missing", () => {
+            expect(() => {
+                publisherClient.createQuestRedirectToken(
+                    { ...validParams, sub: "" },
+                    secret
+                );
+            }).toThrow("offerId, sub, and pub are required");
+        });
+
+        it("should throw error when pub is missing", () => {
+            expect(() => {
+                publisherClient.createQuestRedirectToken(
+                    { ...validParams, pub: "" },
+                    secret
+                );
+            }).toThrow("offerId, sub, and pub are required");
+        });
+
+        it("should throw error when secret is empty", () => {
+            expect(() => {
+                publisherClient.createQuestRedirectToken(validParams, "");
+            }).toThrow("JWT secret is required");
+        });
+
+        it("should log debug messages", () => {
+            publisherClient.createQuestRedirectToken(validParams, secret);
+
+            expect(mockLogger.debug).toHaveBeenCalledWith(
+                "Creating quest redirect token with params:",
+                validParams
+            );
+            expect(mockLogger.debug).toHaveBeenCalledWith(
+                "JWT token created successfully"
+            );
         });
     });
 });

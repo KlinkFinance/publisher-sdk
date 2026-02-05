@@ -194,7 +194,7 @@ Send a postback from Publisher SDK with any valid JSON parameters. You can use t
 
 ```typescript
 // Basic usage with template variables
-const response = await publisher.sendTestPostback({
+const response = await publisher.sendPostback({
   params: {
     eventName: "purchase",
     offerId: "{{offerId}}",
@@ -218,7 +218,7 @@ console.log("Data:", response.data);
 **With Custom Parameters:**
 
 ```typescript
-const response = await publisher.sendTestPostback({
+const response = await publisher.sendPostback({
   params: {
     event_name: "purchase",
     offer_id: "{{offerId}}",
@@ -235,6 +235,45 @@ const response = await publisher.sendTestPostback({
 ```
 
 **Note**: The `params` object accepts any valid JSON structure. Template variables (e.g., `{{conversionId}}`, `{{offerId}}`) will be replaced by the API with actual values when the postback is sent.
+
+### 4. Create Quest Redirect Token
+
+Generate a JWT token locally (no API call) for Quest redirect authentication:
+
+```typescript
+const tokenData = publisher.createQuestRedirectToken(
+  {
+    offerId: "4096",
+    sub: "pub-user1",
+    pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+    expirationMinutes: 10, // Optional, default: 10 minutes
+    custom_params: {
+      k1: "campaign_123",
+      k2: "source_web",
+      k3: "medium_banner",
+    },
+  },
+  process.env.JWT_SECRET // JWT secret for signing
+);
+
+console.log("Token:", tokenData.token);
+console.log("Expires At:", new Date(tokenData.expiresAt * 1000).toISOString());
+
+// Use the token in a redirect URL
+const redirectUrl = `https://quest.klink.finance?token=${tokenData.token}`;
+```
+
+**Parameters:**
+- `offerId` (required): Offer ID for the quest
+- `sub` (required): Subject identifier (user ID)
+- `pub` (required): Publisher ID
+- `expirationMinutes` (optional): Token expiration in minutes (default: 10)
+- `custom_params` (optional): Custom parameters object (k1-k5 and any additional keys)
+- `secret` (required): JWT secret for signing the token
+
+**Returns:**
+- `token`: JWT token string
+- `expiresAt`: Unix timestamp (seconds) when the token expires
 
 ## Advertiser API
 

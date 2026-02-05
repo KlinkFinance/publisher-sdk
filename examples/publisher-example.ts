@@ -387,7 +387,7 @@ async function checkHealth() {
  */
 async function sendPostback() {
   try {
-    const response = await publisher.sendTestPostback({
+    const response = await publisher.sendPostback({
       params: {
         eventType: "{{eventType}}",
         offerId: "{{offerId}}",
@@ -411,7 +411,7 @@ async function sendPostback() {
 
 async function sendPostbackWithCustomParams() {
   try {
-    const response = await publisher.sendTestPostback({
+    const response = await publisher.sendPostback({
       params: {
         eventName: "purchase",
         offerId: "{{offerId}}",
@@ -434,7 +434,7 @@ async function sendPostbackWithCustomParams() {
 
 async function sendPostbackWithMixedParams() {
   try {
-    const response = await publisher.sendTestPostback({
+    const response = await publisher.sendPostback({
       params: {
         // Template variables
         offer_id: "{{offerId}}",
@@ -455,10 +455,102 @@ async function sendPostbackWithMixedParams() {
 
 async function sendPostbackWithEmptyParams() {
   try {
-    const response = await publisher.sendTestPostback({
+    const response = await publisher.sendPostback({
       params: {},
     });
     console.log("Postback sent (empty params):", response.success);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+// ============================================================================
+// Example 8: Create Quest Redirect Token
+// ============================================================================
+
+async function createSimpleToken() {
+  try {
+    const tokenData = publisher.createQuestRedirectToken(
+      {
+        offerId: "4096",
+        sub: "pub-user1",
+        pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+      },
+      process.env.JWT_SECRET || "test-secret"
+    );
+    console.log("Token created:", tokenData.token.substring(0, 50) + "...");
+    console.log("Expires at:", new Date(tokenData.expiresAt * 1000).toISOString());
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function createTokenWithCustomExpiration() {
+  try {
+    const tokenData = publisher.createQuestRedirectToken(
+      {
+        offerId: "4096",
+        sub: "pub-user1",
+        pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+        expirationMinutes: 30, // Custom expiration: 30 minutes
+      },
+      process.env.JWT_SECRET || "test-secret"
+    );
+    console.log("Token with custom expiration created");
+    console.log("Expires in 30 minutes at:", new Date(tokenData.expiresAt * 1000).toISOString());
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function createTokenWithCustomParams() {
+  try {
+    const tokenData = publisher.createQuestRedirectToken(
+      {
+        offerId: "4096",
+        sub: "pub-user1",
+        pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+        expirationMinutes: 15,
+        custom_params: {
+          k1: "campaign_123",
+          k2: "source_web",
+          k3: "medium_banner",
+          k4: "placement_header",
+          k5: "test_group_A",
+        },
+      },
+      process.env.JWT_SECRET || "test-secret"
+    );
+    console.log("Token with custom params created");
+    console.log("Token:", tokenData.token.substring(0, 50) + "...");
+    
+    // Use in redirect URL
+    const redirectUrl = `https://quest.klink.finance?token=${tokenData.token}`;
+    console.log("Redirect URL:", redirectUrl.substring(0, 100) + "...");
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function createTokenForMultipleUsers() {
+  try {
+    const users = ["user1", "user2", "user3"];
+    const tokens = users.map((userId) => {
+      const tokenData = publisher.createQuestRedirectToken(
+        {
+          offerId: "4096",
+          sub: userId,
+          pub: "271e6dc9-d2fd-4f21-bba4-cdabc9df3ad2",
+          expirationMinutes: 10,
+        },
+        process.env.JWT_SECRET || "test-secret"
+      );
+      return { userId, token: tokenData.token, expiresAt: tokenData.expiresAt };
+    });
+    console.log("Created tokens for", tokens.length, "users");
+    tokens.forEach((t) => {
+      console.log(`- ${t.userId}: ${t.token.substring(0, 30)}...`);
+    });
   } catch (error) {
     console.error("Error:", error);
   }
@@ -510,3 +602,9 @@ async function sendPostbackWithEmptyParams() {
 // sendPostbackWithCustomParams();
 // sendPostbackWithMixedParams();
 // sendPostbackWithEmptyParams();
+
+// Create Quest Redirect Token
+// createSimpleToken();
+// createTokenWithCustomExpiration();
+// createTokenWithCustomParams();
+// createTokenForMultipleUsers();
